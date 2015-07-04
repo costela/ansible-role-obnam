@@ -1,0 +1,39 @@
+---
+
+# The obnam repository to which we should backup.
+# This is a mandatory variable and can be either a local path or an URL
+# in the form "sftp://[user@]domain[:port]/path".
+# For more details on the acceptable formats please see obnam(1).
+repository:
+
+# Keep policy for obnam. How many days, weeks, months and years should
+# be kept as backups. See obnam(1) for accepted formats.
+keep_policy: 7d,4w,12m
+
+# User account that will call obnam on the source host.
+user_account: root
+
+# Path to the SSH key to use when connecting to backup repository.
+# The path is relative to the home directory of {{user_account}} and if
+# it's not supplied it uses ssh's default key.
+ssh_key:
+
+# Directories to backup.
+# Starting with obnam 1.9 you can also backup individual files.
+backup_src: []
+
+# Frequency obnam gets called. Acceptable vaules are the same as the
+# "special_time" attribute of the "cron" ansible module.
+# If not provided, obnam will be set up, but no cronjob will be created.
+backup_frequency: daily
+
+# PGP key to encrypt the contents of the repository with. Obnam must
+# have access to the private key, since backing-up requires decrypting
+# metadata in order to update it.
+# Should be passed as KeyID or fingerprint.
+# If not provided, backup will not be encrypted.
+encrypt_key:
+
+# Additional PGP keys that should have access to encrypted repository.
+extra_keys: []
+
