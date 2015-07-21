@@ -41,6 +41,19 @@ Frequency obnam gets called. Acceptable vaules are the same as the
 "special\_time" attribute of the "cron" ansible module.
 If not provided, obnam will be set up, but no cronjob will be created.
 
+## encrypt\_with
+PGP key to encrypt the contents of the repository with. Obnam must
+have access to the private key, since backing-up requires decrypting
+metadata in order to update it.
+Should be passed as KeyID or full fingerprint (recommended).
+If not provided, backup will not be encrypted.
+
+## extra\_keys
+Additional PGP keys that should have access to encrypted repository.
+These can be fetched automatically, since obnam only needs the public
+keys.
+
+
 # Limitations
 
  - Currently supports only one backup job per user.

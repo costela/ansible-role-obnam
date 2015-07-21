@@ -30,15 +30,24 @@
   register: host_pubkeys
   delegate_to: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
   when: (repository | match('sftp://.*'))
-        #and (repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\1')) in hostvars
+        #and ((repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\1')) in hostvars)
 
 - name: add remote host to known_hosts
   known_hosts:
     host: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
     key: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }} {{ item.value }}"
-    #key: "{{ item.value }}"
     state: present
-#  debug:
-#    msg: "{{ item.value }}"
+    allow_multiple: yes
   with_dict: "{{ host_pubkeys.ansible_facts.ssh_hostkeys }}"
   when: host_pubkeys is defined
+
+- name: download GPG public keys
+  command: "gpg --recv-keys {% for key in extra_keys %} {{key}} {% endfor %}"
+  register: gpg_recv_key_result
+  changed_when: "'not changed' not in gpg_recv_key_result.stderr"
+
+- name: add extra keys to repository
+  command: "obnam --quiet --repository {{ repository }} --encrypt-with {{ encrypt_with }} add-key {{ ansible_hostname }} {% for item in extra_keys %}--keyid {{ item }}{% endfor %}"
+  register: obnam_addkey_result
+  failed_when: false
+  #changed_when: obnam_addkey_result

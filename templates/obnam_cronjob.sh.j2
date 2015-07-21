@@ -6,13 +6,13 @@ set -e
 obnam --quiet \
     --compress-with=deflate \
     --repository="{{ repository | mandatory }}" \
-    {% if encrypt_key %}--encrypt-with="{{ encrypt-with }}" {% endif %} \
-    {% if ssh_key %}--ssh-key="{{ ssh_key | expanduser }}" {% endif %} \
+    {% if encrypt_with %}--encrypt-with="{{ encrypt_with }}" {% endif %} \
+    {% if ssh_key %}--ssh-key="{{ ssh_key | expanduser }}"{% endif %} \
     backup {{ backup_src | mandatory | join(' ') }}
 
 obnam --quiet \
     --repository="{{ repository | mandatory }}" \
     {% if ssh_key %}--ssh-key="{{ ssh_key | expanduser }}" {% endif %} \
-    {% if encrypt_key %}--encrypt-with="{{ encrypt-with }}" {% endif %} \
+    {% if encrypt_with %}--encrypt-with="{{ encrypt_with }}" {% endif %} \
     --keep="{{keep_policy | mandatory}}" \
     forget

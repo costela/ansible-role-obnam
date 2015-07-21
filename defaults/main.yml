@@ -32,7 +32,7 @@ backup_frequency: daily
 # metadata in order to update it.
 # Should be passed as KeyID or fingerprint.
 # If not provided, backup will not be encrypted.
-encrypt_key:
+encrypt_with:
 
 # Additional PGP keys that should have access to encrypted repository.
 extra_keys: []
