@@ -47,7 +47,6 @@
   changed_when: "'not changed' not in gpg_recv_key_result.stderr"
 
 - name: add extra keys to repository
-  command: "obnam --quiet --repository {{ repository }} --encrypt-with {{ encrypt_with }} add-key {{ ansible_hostname }} {% for item in extra_keys %}--keyid {{ item }}{% endfor %}"
-  register: obnam_addkey_result
-  failed_when: false
-  #changed_when: obnam_addkey_result
+  command: "obnam --repository {{ repository }} --encrypt-with {{ encrypt_with }} add-key {{ ansible_hostname }} {% for item in extra_keys %}--keyid {{ item }}{% endfor %}"
+  failed_when: false # TODO: since there's no "obnam init", this fails before the first backup runs.
+  changed_when: false # TODO: any way we can find out if it had to add the key, without having an extra step of "list-keys"?
