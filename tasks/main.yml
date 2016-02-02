@@ -37,7 +37,6 @@
     host: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
     key: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }} {{ item.value }}"
     state: present
-    allow_multiple: yes
   with_dict: "{{ host_pubkeys.ansible_facts.ssh_hostkeys }}"
   when: host_pubkeys is defined
 
