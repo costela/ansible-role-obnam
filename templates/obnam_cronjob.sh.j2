@@ -5,14 +5,14 @@ set -e
 
 /usr/bin/obnam --quiet \
     --compress-with=deflate \
-    --repository="{{ repository | mandatory }}" \
-    {% if encrypt_with %}--encrypt-with="{{ encrypt_with }}" {% endif %} \
-    {% if ssh_key %}--ssh-key="{{ ssh_key | expanduser }}"{% endif %} \
-    backup {{ backup_src | mandatory | join(' ') }}
+    --repository="{{ obnam_repository | mandatory }}" \
+    {% if obnam_encrypt_with %}--encrypt-with="{{ obnam_encrypt_with }}" {% endif %} \
+    {% if obnam_ssh_key %}--ssh-key="{{ obnam_ssh_key | expanduser }}"{% endif %} \
+    backup {{ obnam_backup_src | mandatory | join(' ') }}
 
 /usr/bin/obnam --quiet \
-    --repository="{{ repository | mandatory }}" \
-    {% if ssh_key %}--ssh-key="{{ ssh_key | expanduser }}" {% endif %} \
-    {% if encrypt_with %}--encrypt-with="{{ encrypt_with }}" {% endif %} \
-    --keep="{{keep_policy | mandatory}}" \
+    --repository="{{ obnam_repository | mandatory }}" \
+    {% if obnam_ssh_key %}--ssh-key="{{ obnam_ssh_key | expanduser }}" {% endif %} \
+    {% if obnam_encrypt_with %}--encrypt-with="{{ obnam_encrypt_with }}" {% endif %} \
+    --keep="{{ obnam_keep_policy | mandatory }}" \
     forget

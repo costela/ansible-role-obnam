@@ -10,42 +10,42 @@
   template:
     dest: /etc/obnam_cronjob.sh
     src: obnam_cronjob.sh.j2
-    owner: "{{ user_account }}"
-    group: "{{ user_account }}"
+    owner: "{{ obnam_user_account }}"
+    group: "{{ obnam_user_account }}"
     mode: '0755'
 
-- name: set up obnam cronjob for {{user_account}}
+- name: set up obnam cronjob for {{ obnam_user_account }}
   cron:
-    name: obnam cronjob for {{user_account}}
-    user: "{{user_account}}"
-    cron_file: "obnam-backup-{{user_account}}"
-    special_time: "{{backup_frequency}}"
+    name: obnam cronjob for {{ obnam_user_account }}
+    user: "{{ obnam_user_account }}"
+    cron_file: "obnam-backup-{{ obnam_user_account }}"
+    special_time: "{{ obnam_backup_frequency }}"
     job: /etc/obnam_cronjob.sh
-  when: backup_frequency is defined
+  when: obnam_backup_frequency is defined
 
 # we work around the fact that the ansible_host_key_* facts don't
 # include the key type (ssh-rsa, ecdsa-sha2-nistp256, etc)
 - name: populate hostkeys facts
   get_hostkeys:
-  register: host_pubkeys
-  delegate_to: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
-  when: (repository | match('sftp://.*'))
-        #and ((repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\1')) in hostvars)
+  register: _host_pubkeys
+  delegate_to: "{{ obnam_repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\1') }}"
+  when: obnam_repository | match('sftp://.*')
+        #and ((obnam_repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\1')) in hostvars)
 
 - name: add remote host to known_hosts
   known_hosts:
-    host: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
-    key: "{{ repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }} {{ item.value }}"
+    host: "{{ obnam_repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }}"
+    key: "{{ obnam_repository | regex_replace('sftp://(?:.*?@)?(.*?)/.*', '\\\\1') }} {{ item.value }}"
     state: present
-  with_dict: "{{ host_pubkeys.ansible_facts.ssh_hostkeys }}"
-  when: host_pubkeys is defined
+  with_dict: "{{ _host_pubkeys.ansible_facts.ssh_hostkeys }}"
+  when: _host_pubkeys is defined
 
 - name: download GPG public keys
-  command: "gpg --recv-keys {% for key in extra_keys %} {{key}} {% endfor %}"
-  register: gpg_recv_key_result
-  changed_when: "'not changed' not in gpg_recv_key_result.stderr"
+  command: "gpg --recv-keys {% for key in obnam_extra_keys %} {{key}} {% endfor %}"
+  register: _gpg_recv_key_result
+  changed_when: "'not changed' not in _gpg_recv_key_result.stderr"
 
 - name: add extra keys to repository
-  command: "obnam --repository {{ repository }} --encrypt-with {{ encrypt_with }} add-key {{ ansible_hostname }} {% for item in extra_keys %}--keyid {{ item }}{% endfor %}"
+  command: "obnam --repository {{ obnam_repository }} --encrypt-with {{ obnam_encrypt_with }} add-key {{ ansible_hostname }} {% for item in obnam_extra_keys %}--keyid {{ item }}{% endfor %}"
   failed_when: false # TODO: since there's no "obnam init", this fails before the first backup runs.
   changed_when: false # TODO: any way we can find out if it had to add the key, without having an extra step of "list-keys"?
